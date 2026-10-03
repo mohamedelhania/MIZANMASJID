@@ -20,8 +20,52 @@ fs.writeFileSync(path.join(outDir, 'config.json'), JSON.stringify({
 }));
 
 const wrapperCode = `import serverObj from './server.js';
-export default function(req) {
-  return (serverObj.default || serverObj).fetch(req, {}, {});
+
+export default async function(req, res) {
+  const protocol = req.headers['x-forwarded-proto'] || 'https';
+  const url = new URL(req.url, \`\${protocol}://\${req.headers.host}\`);
+  
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (Array.isArray(value)) value.forEach(v => headers.append(key, v));
+    else headers.set(key, value);
+  }
+  
+  const init = { method: req.method, headers };
+  
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    const buffers = [];
+    for await (const chunk of req) {
+      buffers.push(chunk);
+    }
+    init.body = Buffer.concat(buffers);
+  }
+  
+  const request = new Request(url, init);
+  
+  try {
+    const fetchHandler = serverObj.default || serverObj;
+    const response = await fetchHandler.fetch(request, {}, {});
+    
+    res.statusCode = response.status;
+    for (const [key, value] of response.headers.entries()) {
+      res.setHeader(key, value);
+    }
+    
+    if (response.body) {
+      const reader = response.body.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(value);
+      }
+    }
+    res.end();
+  } catch (err) {
+    console.error(err);
+    res.statusCode = 500;
+    res.end('Internal Server Error');
+  }
 }`;
 fs.writeFileSync(path.join(outDir, 'functions/__server.func/index.mjs'), wrapperCode);
 
