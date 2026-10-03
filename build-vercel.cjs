@@ -71,6 +71,10 @@ export default async function(req, res) {
 }`;
 fs.writeFileSync(path.join(outDir, 'functions/__server.func/index.mjs'), wrapperCode);
 
+fs.writeFileSync(path.join(outDir, 'functions/__server.func/package.json'), JSON.stringify({
+  type: 'module'
+}));
+
 fs.writeFileSync(path.join(outDir, 'functions/__server.func/.vc-config.json'), JSON.stringify({
   runtime: 'nodejs24.x',
   handler: 'index.mjs',
