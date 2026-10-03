@@ -19,8 +19,15 @@ fs.writeFileSync(path.join(outDir, 'config.json'), JSON.stringify({
   ]
 }));
 
+const wrapperCode = `import serverObj from './server.js';
+export default function(req) {
+  return (serverObj.default || serverObj).fetch(req, {}, {});
+}`;
+fs.writeFileSync(path.join(outDir, 'functions/__server.func/index.mjs'), wrapperCode);
+
 fs.writeFileSync(path.join(outDir, 'functions/__server.func/.vc-config.json'), JSON.stringify({
-  runtime: 'edge',
-  entrypoint: 'server.js'
+  runtime: 'nodejs20.x',
+  handler: 'index.mjs',
+  launcherType: 'Nodejs'
 }));
 console.log('Vercel Output API v3 structure generated!');

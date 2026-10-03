@@ -11,6 +11,9 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   cloudflare: !!process.env.VERCEL ? false : undefined,
   tanstackStart: {
-    server: process.env.VERCEL ? undefined : { entry: "server" },
+    server: {
+      preset: process.env.VERCEL ? "vercel" : undefined,
+      entry: process.env.VERCEL ? undefined : "server",
+    },
   },
 });
