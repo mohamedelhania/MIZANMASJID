@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   BookOpen, Plus, Users, GraduationCap, Trash2, Calendar, CheckCircle2,
-  XCircle, Clock, FileText, ClipboardCheck, ArrowLeft, Loader2
+  XCircle, Clock, FileText, ClipboardCheck, ArrowLeft, Loader2, Eye
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts";
 
@@ -304,12 +304,17 @@ function TabAlumnos({ students }: { students: any[] }) {
       <div className="space-y-2">
         {(students ?? []).map(s => (
           <div key={s.id} className="flex items-center gap-3 p-3 bg-muted/20 hover:bg-muted/40 transition-colors rounded-xl">
-            <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase">
-              {s.first_name[0]}{s.last_name[0]}
+            <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase relative overflow-hidden flex-shrink-0">
+              {s.photo_url ? <img src={s.photo_url} alt="" className="h-full w-full object-cover absolute inset-0" /> : `${s.first_name[0]}${s.last_name[0]}`}
             </div>
             <div>
               <p className="font-medium text-sm">{s.first_name} {s.last_name}</p>
               {s.contact_phone && <p className="text-[10px] text-muted-foreground">Tel: {s.contact_phone}</p>}
+            </div>
+            <div className="ml-auto">
+              <Link to="/alumnos/$studentId" params={{ studentId: s.id }} className="p-2 hover:bg-muted rounded-full block text-muted-foreground hover:text-primary transition-colors">
+                <Eye className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         ))}

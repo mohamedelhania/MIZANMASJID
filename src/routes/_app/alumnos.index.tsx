@@ -226,7 +226,8 @@ function AlumnosIndexPage() {
               </div>
               <div className="sm:col-span-2 md:col-span-3">
                 <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-1 block">Foto del Alumno (Opcional)</label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
+                  {photoFile && <img src={URL.createObjectURL(photoFile)} alt="Preview" className="h-10 w-10 object-cover rounded-full" />}
                   <input type="file" accept="image/*" onChange={e => setPhotoFile(e.target.files?.[0] || null)} className="w-full px-3 py-1.5 rounded-xl border border-border bg-background text-sm" />
                 </div>
           </div>
