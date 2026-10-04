@@ -283,7 +283,7 @@ function AulasPage() {
 
       {/* TAB CONTENTS */}
       <div className="mt-4">
-        {activeTab === "alumnos" && <TabAlumnos students={students} />}
+        {activeTab === "alumnos" && <TabAlumnos students={students} qc={qc} canModify={canModifyData()} />}
         {activeTab === "tareas" && <TabTareas mosqueId={mosqueId!} classroomId={selectedClassroom} canModify={canModifyData()} students={students} qc={qc} />}
         {activeTab === "examenes" && <TabExamenes mosqueId={mosqueId!} classroomId={selectedClassroom} canModify={canModifyData()} students={students} qc={qc} />}
         {activeTab === "asistencia" && (
@@ -297,7 +297,18 @@ function AulasPage() {
 
 // --- SUBCOMPONENTS FOR TABS ---
 
-function TabAlumnos({ students }: { students: any[] }) {
+function TabAlumnos({ students, qc, canModify }: { students: any[], qc: any, canModify: boolean }) {
+  const removeStudent = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("students").update({ classroom_id: null }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["classroom-students"] });
+      toast.success("Alumno retirado del aula");
+    }
+  });
+
   return (
     <Card className="p-4 animate-fade-in">
       <h3 className="text-lg font-semibold mb-4">Listado de Alumnos</h3>
@@ -311,10 +322,15 @@ function TabAlumnos({ students }: { students: any[] }) {
               <p className="font-medium text-sm">{s.first_name} {s.last_name}</p>
               {s.contact_phone && <p className="text-[10px] text-muted-foreground">Tel: {s.contact_phone}</p>}
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center">
               <Link to="/alumnos/$studentId" params={{ studentId: s.id }} className="p-2 hover:bg-muted rounded-full block text-muted-foreground hover:text-primary transition-colors">
                 <Eye className="h-4 w-4" />
               </Link>
+                {canModify && (
+                  <button onClick={() => { if(confirm("¿Seguro que deseas retirar a este alumno del aula?")) removeStudent.mutate(s.id); }} className="p-2 hover:bg-muted rounded-full block text-destructive transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
             </div>
           </div>
         ))}
