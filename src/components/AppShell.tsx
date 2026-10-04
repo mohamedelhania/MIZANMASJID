@@ -5,8 +5,9 @@ import { useI18n } from "@/lib/i18n";
 import {
   LayoutDashboard, Users, GraduationCap, HandCoins, Receipt,
   TrendingUp, Moon, Building2, LogOut, Menu, X, ChevronRight,
-  BookOpen, Shield, Eye, UserCog, Landmark, ArrowLeft, ClipboardCheck, FileText
+  BookOpen, Shield, Eye, UserCog, ArrowLeft, ClipboardCheck, FileText
 } from "lucide-react";
+import { MosqueIcon } from "@/components/ui/mosque-icon";
 import logoImg from "@/assets/logo.png";
 import { GlobalSearch } from "./GlobalSearch";
 
@@ -27,7 +28,7 @@ export function AppShell() {
 
   if (isSA && !isManaging) {
     // Super Admin global view — only Mosques
-    navItems.push({ to: "/mezquitas", label: t("mosques") as string, icon: <Landmark className="h-5 w-5" /> });
+    navItems.push({ to: "/mezquitas", label: t("mosques") as string, icon: <MosqueIcon className="h-5 w-5" /> });
   } else {
     // Dashboard visible for SA, gerente, supervisor
     if (role !== "profesorado") {

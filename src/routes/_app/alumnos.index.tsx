@@ -18,6 +18,7 @@ function AlumnosIndexPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -260,7 +261,7 @@ function AlumnosIndexPage() {
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3">
                   <div className="avatar-initials text-xs flex-shrink-0 relative">
-                    {s.photo_url ? <img src={s.photo_url} alt="" className="h-full w-full rounded-full object-cover absolute inset-0" /> : getInitials(s.first_name, s.last_name)}
+                    {s.photo_url ? <img src={s.photo_url} alt="" className="h-full w-full rounded-full object-cover absolute inset-0 cursor-pointer" onClick={() => setSelectedPhoto(s.photo_url || null)} /> : getInitials(s.first_name, s.last_name)}
                   </div>
                   <div>
                     <p className="text-sm font-medium">{s.first_name} {s.last_name}</p>
@@ -285,6 +286,28 @@ function AlumnosIndexPage() {
 
             </Card>
           ))}
+        </div>
+      )}
+      {/* Photo Viewer Overlay */}
+      {selectedPhoto && (
+        <div 
+          className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div className="relative max-w-2xl max-h-[90vh] w-full h-full p-2 bg-card rounded-2xl shadow-xl overflow-hidden flex items-center justify-center border border-border">
+            <button 
+              className="absolute top-4 right-4 h-8 w-8 bg-background/50 backdrop-blur-md rounded-full flex items-center justify-center text-foreground hover:bg-background transition-colors z-10 border border-border shadow-sm"
+              onClick={() => setSelectedPhoto(null)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <img 
+              src={selectedPhoto} 
+              alt="Foto del alumno" 
+              className="max-w-full max-h-[85vh] object-contain rounded-xl"
+              onClick={e => e.stopPropagation()} 
+            />
+          </div>
         </div>
       )}
     </div>

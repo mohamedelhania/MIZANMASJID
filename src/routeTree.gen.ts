@@ -9,32 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegistrarMezquitaRouteImport } from './routes/registrar-mezquita'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ChangePasswordRouteImport } from './routes/change-password'
-import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppUsuariosRouteImport } from './routes/_app/usuarios'
-import { Route as AppShartRouteImport } from './routes/_app/shart'
-import { Route as AppRamadanRouteImport } from './routes/_app/ramadan'
-import { Route as AppMezquitasRouteImport } from './routes/_app/mezquitas'
-import { Route as AppIngresosRouteImport } from './routes/_app/ingresos'
-import { Route as AppGastosRouteImport } from './routes/_app/gastos'
-import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
-import { Route as AppAulasRouteImport } from './routes/_app/aulas'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as ChangePasswordRouteImport } from './routes/change-password'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegistrarMezquitaRouteImport } from './routes/registrar-mezquita'
 import { Route as AppAlumnosRouteImport } from './routes/_app/alumnos'
+import { Route as AppAulasRouteImport } from './routes/_app/aulas'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppGastosRouteImport } from './routes/_app/gastos'
+import { Route as AppIngresosRouteImport } from './routes/_app/ingresos'
+import { Route as AppMezquitasRouteImport } from './routes/_app/mezquitas'
+import { Route as AppRamadanRouteImport } from './routes/_app/ramadan'
+import { Route as AppShartRouteImport } from './routes/_app/shart'
+import { Route as AppUsuariosRouteImport } from './routes/_app/usuarios'
 import { Route as AppAlumnosIndexRouteImport } from './routes/_app/alumnos.index'
-import { Route as AppMezquitasMosqueIdRouteImport } from './routes/_app/mezquitas.$mosqueId'
 import { Route as AppAlumnosStudentIdRouteImport } from './routes/_app/alumnos.$studentId'
+import { Route as AppMezquitasMosqueIdRouteImport } from './routes/_app/mezquitas.$mosqueId'
 
-const RegistrarMezquitaRoute = RegistrarMezquitaRouteImport.update({
-  id: '/registrar-mezquita',
-  path: '/registrar-mezquita',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChangePasswordRoute = ChangePasswordRouteImport.update({
@@ -42,48 +41,19 @@ const ChangePasswordRoute = ChangePasswordRouteImport.update({
   path: '/change-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const RegistrarMezquitaRoute = RegistrarMezquitaRouteImport.update({
+  id: '/registrar-mezquita',
+  path: '/registrar-mezquita',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppUsuariosRoute = AppUsuariosRouteImport.update({
-  id: '/usuarios',
-  path: '/usuarios',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppShartRoute = AppShartRouteImport.update({
-  id: '/shart',
-  path: '/shart',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRamadanRoute = AppRamadanRouteImport.update({
-  id: '/ramadan',
-  path: '/ramadan',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppMezquitasRoute = AppMezquitasRouteImport.update({
-  id: '/mezquitas',
-  path: '/mezquitas',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppIngresosRoute = AppIngresosRouteImport.update({
-  id: '/ingresos',
-  path: '/ingresos',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGastosRoute = AppGastosRouteImport.update({
-  id: '/gastos',
-  path: '/gastos',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppDashboardRoute = AppDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AppAlumnosRoute = AppAlumnosRouteImport.update({
+  id: '/alumnos',
+  path: '/alumnos',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAulasRoute = AppAulasRouteImport.update({
@@ -91,9 +61,39 @@ const AppAulasRoute = AppAulasRouteImport.update({
   path: '/aulas',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAlumnosRoute = AppAlumnosRouteImport.update({
-  id: '/alumnos',
-  path: '/alumnos',
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGastosRoute = AppGastosRouteImport.update({
+  id: '/gastos',
+  path: '/gastos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIngresosRoute = AppIngresosRouteImport.update({
+  id: '/ingresos',
+  path: '/ingresos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMezquitasRoute = AppMezquitasRouteImport.update({
+  id: '/mezquitas',
+  path: '/mezquitas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRamadanRoute = AppRamadanRouteImport.update({
+  id: '/ramadan',
+  path: '/ramadan',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppShartRoute = AppShartRouteImport.update({
+  id: '/shart',
+  path: '/shart',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUsuariosRoute = AppUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAlumnosIndexRoute = AppAlumnosIndexRouteImport.update({
@@ -101,15 +101,15 @@ const AppAlumnosIndexRoute = AppAlumnosIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAlumnosRoute,
 } as any)
-const AppMezquitasMosqueIdRoute = AppMezquitasMosqueIdRouteImport.update({
-  id: '/$mosqueId',
-  path: '/$mosqueId',
-  getParentRoute: () => AppMezquitasRoute,
-} as any)
 const AppAlumnosStudentIdRoute = AppAlumnosStudentIdRouteImport.update({
   id: '/$studentId',
   path: '/$studentId',
   getParentRoute: () => AppAlumnosRoute,
+} as any)
+const AppMezquitasMosqueIdRoute = AppMezquitasMosqueIdRouteImport.update({
+  id: '/$mosqueId',
+  path: '/$mosqueId',
+  getParentRoute: () => AppMezquitasRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -234,25 +234,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/registrar-mezquita': {
-      id: '/registrar-mezquita'
-      path: '/registrar-mezquita'
-      fullPath: '/registrar-mezquita'
-      preLoaderRoute: typeof RegistrarMezquitaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/change-password': {
-      id: '/change-password'
-      path: '/change-password'
-      fullPath: '/change-password'
-      preLoaderRoute: typeof ChangePasswordRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -262,60 +248,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/change-password': {
+      id: '/change-password'
+      path: '/change-password'
+      fullPath: '/change-password'
+      preLoaderRoute: typeof ChangePasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/usuarios': {
-      id: '/_app/usuarios'
-      path: '/usuarios'
-      fullPath: '/usuarios'
-      preLoaderRoute: typeof AppUsuariosRouteImport
-      parentRoute: typeof AppRoute
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/shart': {
-      id: '/_app/shart'
-      path: '/shart'
-      fullPath: '/shart'
-      preLoaderRoute: typeof AppShartRouteImport
-      parentRoute: typeof AppRoute
+    '/registrar-mezquita': {
+      id: '/registrar-mezquita'
+      path: '/registrar-mezquita'
+      fullPath: '/registrar-mezquita'
+      preLoaderRoute: typeof RegistrarMezquitaRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/ramadan': {
-      id: '/_app/ramadan'
-      path: '/ramadan'
-      fullPath: '/ramadan'
-      preLoaderRoute: typeof AppRamadanRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/mezquitas': {
-      id: '/_app/mezquitas'
-      path: '/mezquitas'
-      fullPath: '/mezquitas'
-      preLoaderRoute: typeof AppMezquitasRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/ingresos': {
-      id: '/_app/ingresos'
-      path: '/ingresos'
-      fullPath: '/ingresos'
-      preLoaderRoute: typeof AppIngresosRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/gastos': {
-      id: '/_app/gastos'
-      path: '/gastos'
-      fullPath: '/gastos'
-      preLoaderRoute: typeof AppGastosRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/dashboard': {
-      id: '/_app/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AppDashboardRouteImport
+    '/_app/alumnos': {
+      id: '/_app/alumnos'
+      path: '/alumnos'
+      fullPath: '/alumnos'
+      preLoaderRoute: typeof AppAlumnosRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/aulas': {
@@ -325,11 +283,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAulasRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/alumnos': {
-      id: '/_app/alumnos'
-      path: '/alumnos'
-      fullPath: '/alumnos'
-      preLoaderRoute: typeof AppAlumnosRouteImport
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/gastos': {
+      id: '/_app/gastos'
+      path: '/gastos'
+      fullPath: '/gastos'
+      preLoaderRoute: typeof AppGastosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ingresos': {
+      id: '/_app/ingresos'
+      path: '/ingresos'
+      fullPath: '/ingresos'
+      preLoaderRoute: typeof AppIngresosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mezquitas': {
+      id: '/_app/mezquitas'
+      path: '/mezquitas'
+      fullPath: '/mezquitas'
+      preLoaderRoute: typeof AppMezquitasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ramadan': {
+      id: '/_app/ramadan'
+      path: '/ramadan'
+      fullPath: '/ramadan'
+      preLoaderRoute: typeof AppRamadanRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/shart': {
+      id: '/_app/shart'
+      path: '/shart'
+      fullPath: '/shart'
+      preLoaderRoute: typeof AppShartRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/usuarios': {
+      id: '/_app/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AppUsuariosRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/alumnos/': {
@@ -339,19 +339,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAlumnosIndexRouteImport
       parentRoute: typeof AppAlumnosRoute
     }
-    '/_app/mezquitas/$mosqueId': {
-      id: '/_app/mezquitas/$mosqueId'
-      path: '/$mosqueId'
-      fullPath: '/mezquitas/$mosqueId'
-      preLoaderRoute: typeof AppMezquitasMosqueIdRouteImport
-      parentRoute: typeof AppMezquitasRoute
-    }
     '/_app/alumnos/$studentId': {
       id: '/_app/alumnos/$studentId'
       path: '/$studentId'
       fullPath: '/alumnos/$studentId'
       preLoaderRoute: typeof AppAlumnosStudentIdRouteImport
       parentRoute: typeof AppAlumnosRoute
+    }
+    '/_app/mezquitas/$mosqueId': {
+      id: '/_app/mezquitas/$mosqueId'
+      path: '/$mosqueId'
+      fullPath: '/mezquitas/$mosqueId'
+      preLoaderRoute: typeof AppMezquitasMosqueIdRouteImport
+      parentRoute: typeof AppMezquitasRoute
     }
   }
 }

@@ -7,9 +7,10 @@ import { useI18n } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Landmark, Search, CheckCircle2, XCircle, Clock, Phone, Mail,
+  Search, CheckCircle2, XCircle, Clock, Phone, Mail,
   ChevronRight, Building2, MapPin, Eye, Users as UsersIcon, Map as MapIcon, List
 } from "lucide-react";
+import { MosqueIcon } from "@/components/ui/mosque-icon";
 import { useState, lazy, Suspense } from "react";
 
 const MosqueMap = lazy(() => import("@/components/MosqueMap"));
@@ -78,7 +79,7 @@ function MosquesPage() {
     <div className="space-y-5">
       <div className="animate-slide-up flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-display font-bold flex items-center gap-2.5">
-          <Landmark className="h-7 w-7 text-primary" />
+          <MosqueIcon className="h-7 w-7 text-primary" />
           {t("mosques") as string}
         </h1>
         <div className="flex bg-muted/50 p-1 rounded-xl">

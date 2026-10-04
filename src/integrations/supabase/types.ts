@@ -314,6 +314,7 @@ export type Database = {
           date_of_birth: string | null
           enrollment_date: string
           first_name: string
+            photo_url?: string | null
           id: string
           last_name: string
         }
@@ -323,6 +324,7 @@ export type Database = {
           date_of_birth?: string | null
           enrollment_date?: string
           first_name: string
+            photo_url?: string | null
           id?: string
           last_name: string
         }
@@ -332,6 +334,7 @@ export type Database = {
           date_of_birth?: string | null
           enrollment_date?: string
           first_name?: string
+            photo_url?: string | null
           id?: string
           last_name?: string
         }
