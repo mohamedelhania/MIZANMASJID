@@ -304,7 +304,7 @@ function AlumnosIndexPage() {
         >
           <div className="relative max-w-2xl max-h-[90vh] w-full h-full p-2 bg-card rounded-2xl shadow-xl overflow-hidden flex items-center justify-center border border-border">
             <button 
-              className="absolute top-4 right-4 h-8 w-8 bg-background/50 backdrop-blur-md rounded-full flex items-center justify-center text-foreground hover:bg-background transition-colors z-10 border border-border shadow-sm"
+              className="fixed top-safe mt-4 right-4 md:top-6 md:right-6 h-10 w-10 md:h-12 md:w-12 bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors z-[200] border border-white/20 shadow-lg"
               onClick={() => setSelectedPhoto(null)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
