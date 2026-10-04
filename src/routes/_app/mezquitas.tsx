@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Search, CheckCircle2, XCircle, Clock, Phone, Mail,
-  ChevronRight, Building2, MapPin, Eye, Users as UsersIcon, Map as MapIcon, List
+  ChevronRight, Building2, MapPin, Eye, Users as UsersIcon, Map as MapIcon, List, Trash2
 } from "lucide-react";
 import { MosqueIcon } from "@/components/ui/mosque-icon";
 import { useState, lazy, Suspense } from "react";
@@ -34,6 +34,15 @@ function MosquesPage() {
       const { data } = await supabase.from("mosques").select("*").order("created_at", { ascending: false });
       return data ?? [];
     },
+  });
+
+const deleteMosque = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("mosques").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["all-mosques"] }); toast.success("Mezquita eliminada correctamente"); },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const updateStatus = useMutation({
@@ -150,10 +159,16 @@ function MosquesPage() {
                   </Button>
                 )}
                 {m.status === "suspended" && (
-                  <Button size="sm" variant="outline" className="text-xs gap-1"
-                    onClick={() => updateStatus.mutate({ id: m.id, status: "active" })}>
-                    <CheckCircle2 className="h-3 w-3" /> {t("verify_mosque") as string}
-                  </Button>
+                  <>
+                    <Button size="sm" variant="outline" className="text-xs gap-1 flex-1"
+                      onClick={() => updateStatus.mutate({ id: m.id, status: "active" })}>
+                      <CheckCircle2 className="h-3 w-3" /> {t("verify_mosque") as string}
+                    </Button>
+                    <Button size="sm" variant="destructive" className="text-xs gap-1 flex-1"
+                      onClick={() => { if(confirm("¿Seguro que deseas ELIMINAR esta mezquita por completo? Esta acción no se puede deshacer.")) deleteMosque.mutate(m.id); }}>
+                      <Trash2 className="h-3 w-3" /> Eliminar
+                    </Button>
+                  </>
                 )}
                 <Button size="sm" variant="outline" className="text-xs gap-1"
                   onClick={() => handleManage(m.id)}>
