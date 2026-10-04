@@ -82,7 +82,18 @@ fs.writeFileSync(path.join(outDir, 'functions/__server.func/.vc-config.json'), J
 }));
 
 const { nodeFileTrace } = require('@vercel/nft');
-nodeFileTrace([path.join(outDir, 'functions/__server.func/index.mjs')], {
+const functionDir = path.join(outDir, 'functions/__server.func');
+const filesToTrace = [];
+function findJsFiles(dir) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) findJsFiles(fullPath);
+    else if (fullPath.endsWith('.js') || fullPath.endsWith('.mjs')) filesToTrace.push(fullPath);
+  }
+}
+findJsFiles(functionDir);
+
+nodeFileTrace(filesToTrace, {
   base: process.cwd(),
 }).then(({ fileList }) => {
   let copiedCount = 0;
@@ -97,7 +108,7 @@ nodeFileTrace([path.join(outDir, 'functions/__server.func/index.mjs')], {
       }
     }
   }
-  console.log(\`Vercel Output API v3 structure generated! Copied \${copiedCount} node_modules files.\`);
+  console.log(`Vercel Output API v3 structure generated! Copied ${copiedCount} node_modules files.`);
 }).catch(err => {
   console.error('NFT failed:', err);
   process.exit(1);
