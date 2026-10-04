@@ -45,7 +45,10 @@ function ShartPage() {
 
   const togglePayment = useMutation({
     mutationFn: async ({ id, paid }: { id: string; paid: boolean }) => {
-      await supabase.from("shart_payments").update({ paid }).eq("id", id);
+      const now = new Date();
+      await supabase.from("shart_payments").update(
+        paid ? { paid, payment_year: now.getFullYear(), payment_month: now.getMonth() + 1 } : { paid, payment_year: null, payment_month: null }
+      ).eq("id", id);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["shart"] }),
   });

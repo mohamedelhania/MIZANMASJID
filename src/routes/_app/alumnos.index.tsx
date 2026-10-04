@@ -106,7 +106,8 @@ function AlumnosIndexPage() {
       if (current) {
         await supabase.from("student_payments").delete().eq("student_id", studentId).eq("year", year).eq("month", month);
       } else {
-        await supabase.from("student_payments").insert({ student_id: studentId, year, month, paid: true, amount: fee });
+        const now = new Date();
+        await supabase.from("student_payments").insert({ student_id: studentId, year, month, paid: true, amount: fee, payment_year: now.getFullYear(), payment_month: now.getMonth() + 1 });
       }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["student-payments-all"] }),

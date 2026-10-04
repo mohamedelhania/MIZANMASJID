@@ -127,7 +127,13 @@ function StudentDetailPage() {
 
   const togglePayment = useMutation({
     mutationFn: async ({ year, month, paid, amount }: { year: number; month: number; paid: boolean; amount: number }) => {
-      await supabase.from("student_payments").upsert({ student_id: studentId, year, month, paid, amount }, { onConflict: "student_id,year,month" });
+      const now = new Date();
+      if (paid) {
+        await supabase.from("student_payments").upsert({ student_id: studentId, year, month, paid, amount, payment_year: now.getFullYear(), payment_month: now.getMonth() + 1 }, { onConflict: "student_id,year,month" });
+      } else {
+        // Just delete or set null. Upserting with null is fine since it's paid=false
+        await supabase.from("student_payments").upsert({ student_id: studentId, year, month, paid, amount, payment_year: null, payment_month: null }, { onConflict: "student_id,year,month" });
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["payments"] }),
   });

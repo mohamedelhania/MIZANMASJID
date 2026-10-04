@@ -71,7 +71,9 @@ export async function generateMonthlyReport(d: ReportData) {
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0); // Very dark as requested
   // Since Arabic rendering in jsPDF requires a font, we will add the Spanish transliteration or meaning, or just the Arabic text and hope the client has a font or use standard.
-  doc.text("لَا تَقُمْ فِيهِ أَبَدًا لَّمَسْجِدٌ أُسِّسَ عَلَى ٱلتَّقْوَىٰ مِنْ أَوَّلِ يَوْمٍ أَحَقُّ أَن تَقُومَ فِيهِ فِيهِ رِجَالٌ يُحِبُّونَ أَن يَتَطَهَّرُوا وَٱللَّهُ يُحِبُّ ٱلْمُطَّهِّرِينَ 9:108", 14, headerY + 25, { maxWidth: 180, align: "right" });
+  doc.setFont("helvetica", "italic");
+  doc.text('"En ella hay hombres que aman purificarse, y Dios ama a los que se purifican" (Corán 9:108)', 105, headerY + 25, { align: "center" });
+  doc.setFont("helvetica", "normal");
 
   // Separator
   const sepY = headerY + 35;
