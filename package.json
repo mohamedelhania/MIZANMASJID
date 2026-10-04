@@ -79,6 +79,7 @@
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@vercel/nft": "^1.11.0",
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^17.4.2",
     "eslint": "^9.32.0",

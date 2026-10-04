@@ -80,4 +80,25 @@ fs.writeFileSync(path.join(outDir, 'functions/__server.func/.vc-config.json'), J
   handler: 'index.mjs',
   launcherType: 'Nodejs'
 }));
-console.log('Vercel Output API v3 structure generated!');
+
+const { nodeFileTrace } = require('@vercel/nft');
+nodeFileTrace([path.join(outDir, 'functions/__server.func/index.mjs')], {
+  base: process.cwd(),
+}).then(({ fileList }) => {
+  let copiedCount = 0;
+  for (const file of fileList) {
+    if (file.startsWith('node_modules')) {
+      const src = path.join(process.cwd(), file);
+      const dest = path.join(outDir, 'functions/__server.func', file);
+      if (!fs.existsSync(dest)) {
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        fs.copyFileSync(src, dest);
+        copiedCount++;
+      }
+    }
+  }
+  console.log(\`Vercel Output API v3 structure generated! Copied \${copiedCount} node_modules files.\`);
+}).catch(err => {
+  console.error('NFT failed:', err);
+  process.exit(1);
+});
