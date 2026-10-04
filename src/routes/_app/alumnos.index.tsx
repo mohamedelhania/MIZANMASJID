@@ -74,7 +74,7 @@ function AlumnosIndexPage() {
         first_name: firstName, 
         last_name: lastName, 
         mosque_id: mosqueId!,
-        birth_date: birthDate || null,
+        date_of_birth: birthDate || null,
         tutor_name: tutorName || null,
         contact_phone: contactPhone || null,
         classroom_id: classroomId || null,
