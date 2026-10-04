@@ -31,6 +31,7 @@ function AlumnosIndexPage() {
   const [tutorDni, setTutorDni] = useState("");
   const [studentDocType, setStudentDocType] = useState("DNI");
   const [tutorDocType, setTutorDocType] = useState("DNI");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   if (!canAccessStudents()) return <Navigate to="/dashboard" />;
 
@@ -70,7 +71,7 @@ function AlumnosIndexPage() {
 
   const addStudent = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("students").insert({ 
+      const { error, data: newStudent } = await supabase.from("students").insert({ 
         first_name: firstName, 
         last_name: lastName, 
         mosque_id: mosqueId!,
@@ -86,7 +87,7 @@ function AlumnosIndexPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["students"] });
-      setFirstName(""); setLastName(""); setBirthDate(""); setTutorName(""); setContactPhone(""); setClassroomId(""); setMonthlyFee("0"); setStudentDni(""); setTutorDni(""); setShowForm(false);
+      setFirstName(""); setLastName(""); setBirthDate(""); setTutorName(""); setContactPhone(""); setClassroomId(""); setMonthlyFee("0"); setStudentDni(""); setTutorDni(""); setPhotoFile(null); setShowForm(false);
       toast.success("✓");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -222,6 +223,12 @@ function AlumnosIndexPage() {
                 ))}
               </select>
             </div>
+              </div>
+              <div className="sm:col-span-2 md:col-span-3">
+                <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-1 block">Foto del Alumno (Opcional)</label>
+                <div className="flex items-center gap-2">
+                  <input type="file" accept="image/*" onChange={e => setPhotoFile(e.target.files?.[0] || null)} className="w-full px-3 py-1.5 rounded-xl border border-border bg-background text-sm" />
+                </div>
           </div>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" className="text-xs flex-1" onClick={() => setShowForm(false)}>{t("cancel") as string}</Button>
