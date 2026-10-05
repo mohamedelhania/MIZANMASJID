@@ -1,3 +1,4 @@
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { Receipt, Plus, Trash2, ChevronLeft, ChevronRight, Loader2 } from "lucid
 export const Route = createFileRoute("/_app/gastos")({ component: GastosPage });
 
 function GastosPage() {
+  const confirm = useConfirm();
   const { mosqueId, canAccessFinance, canModifyData, formatCurrency } = useAuth();
   const { t } = useI18n();
   const qc = useQueryClient();
@@ -97,7 +99,7 @@ function GastosPage() {
               <div className="flex items-center gap-3">
                 <span className="text-base font-bold text-red-600">-{formatCurrency(Number(v.amount))}</span>
                 {!readOnly && (
-                  <Button size="sm" variant="ghost" onClick={() => { if (confirm("¿Borrar?")) deleteVariable.mutate(v.id); }} className="text-destructive/50 hover:text-destructive h-8 w-8 p-0">
+                  <Button size="sm" variant="ghost" onClick={async () => { if (await confirm("¿Borrar?")) deleteVariable.mutate(v.id); }} className="text-destructive/50 hover:text-destructive h-8 w-8 p-0">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 )}

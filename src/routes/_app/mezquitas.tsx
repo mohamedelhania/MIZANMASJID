@@ -1,3 +1,4 @@
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ const MosqueMap = lazy(() => import("@/components/MosqueMap"));
 export const Route = createFileRoute("/_app/mezquitas")({ component: MosquesPage });
 
 function MosquesPage() {
+  const confirm = useConfirm();
   const { role, setManagingMosqueId } = useAuth();
   const { t } = useI18n();
   const qc = useQueryClient();
@@ -165,7 +167,7 @@ const deleteMosque = useMutation({
                       <CheckCircle2 className="h-3 w-3" /> {t("verify_mosque") as string}
                     </Button>
                     <Button size="sm" variant="destructive" className="text-xs gap-1 flex-1"
-                      onClick={() => { if(confirm("¿Seguro que deseas ELIMINAR esta mezquita por completo? Esta acción no se puede deshacer.")) deleteMosque.mutate(m.id); }}>
+                      onClick={async () => { if (await confirm("¿Seguro que deseas ELIMINAR esta mezquita por completo? Esta acción no se puede deshacer.")) deleteMosque.mutate(m.id); }}>
                       <Trash2 className="h-3 w-3" /> Eliminar
                     </Button>
                   </>

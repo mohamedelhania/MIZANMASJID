@@ -9,6 +9,7 @@ import {
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
+import { ConfirmProvider } from "@/providers/ConfirmDialogProvider";
 import { I18nProvider } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -99,8 +100,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         <AuthProvider>
-          <Outlet />
-          <Toaster richColors position="top-right" />
+          <ConfirmProvider>
+            <Outlet />
+            <Toaster richColors position="top-right" />
+          </ConfirmProvider>
         </AuthProvider>
       </I18nProvider>
     </QueryClientProvider>

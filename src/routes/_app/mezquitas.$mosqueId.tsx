@@ -1,3 +1,4 @@
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,6 +24,7 @@ const ROLES = [
 ];
 
 function MosqueDetailPage() {
+  const confirm = useConfirm();
   const { mosqueId } = Route.useParams();
   const { role, session } = useAuth();
   const { t } = useI18n();
@@ -142,7 +144,7 @@ function MosqueDetailPage() {
                 </div>
               </div>
               <Button size="sm" variant="ghost" className="text-destructive h-8 w-8 p-0"
-                onClick={() => { if (confirm(t("confirm_delete") as string)) deleteUserRole.mutate(ur.id); }}>
+                onClick={async () => { if (await confirm(t("confirm_delete") as string)) deleteUserRole.mutate(ur.id); }}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -270,7 +272,7 @@ function MosqueConfigManager({ mosqueId }: { mosqueId: string }) {
               <span className="text-xs font-medium bg-background px-2 py-0.5 rounded border mr-2 uppercase tracking-wide text-muted-foreground">{c.config_type}</span>
               <span className="text-sm">{c.label}</span>
             </div>
-            <button onClick={() => deleteConfig.mutate(c.id)} className="text-destructive/50 hover:text-destructive p-1">
+            <button onClick={async () => { if (await confirm("¿Eliminar configuración?")) deleteConfig.mutate(c.id); }} className="text-destructive/50 hover:text-destructive p-1">
               <Trash2 className="h-3 w-3" />
             </button>
           </div>

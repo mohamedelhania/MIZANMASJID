@@ -1,3 +1,4 @@
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, useNavigate, Navigate, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { GraduationCap, Search, Plus, Eye, Trash2, Loader2, ChevronLeft, Chevron
 export const Route = createFileRoute("/_app/alumnos/")({ component: AlumnosIndexPage });
 
 function AlumnosIndexPage() {
+  const confirm = useConfirm();
   const { mosqueId, canAccessStudents, canModifyData } = useAuth();
   const { t } = useI18n();
   const qc = useQueryClient();
@@ -339,7 +341,7 @@ function AlumnosIndexPage() {
                   </Link>
                   {canModifyData() && (
                     <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-destructive"
-                      onClick={() => { if (confirm(t("confirm_delete") as string)) deleteStudent.mutate(s.id); }}>
+                      onClick={async () => { if (await confirm(t("confirm_delete") as string)) deleteStudent.mutate(s.id); }}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   )}

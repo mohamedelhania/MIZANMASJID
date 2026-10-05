@@ -1,3 +1,4 @@
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, Navigate, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
 export const Route = createFileRoute("/_app/aulas")({ component: AulasPage });
 
 function AulasPage() {
+  const confirm = useConfirm();
   const { mosqueId, canAccessStudents, canModifyData } = useAuth();
   const { t } = useI18n();
   const qc = useQueryClient();
@@ -260,11 +262,11 @@ function AulasPage() {
                   <option key={t.user_id} value={t.user_id}>{t.profiles?.full_name || t.user_id}</option>
                 ))}
               </select>
-              <Button size="sm" variant="destructive" className="h-8 gap-1 text-xs" onClick={() => {
-                if (confirm("¿Estás seguro de que quieres eliminar esta aula? Los alumnos asignados se quedarán sin aula.")) {
-                  deleteClassroom.mutate();
-                }
-              }}>
+              <Button size="sm" variant="destructive" className="h-8 gap-1 text-xs" onClick={async () => {
+                  if (await confirm("¿Estás seguro de que quieres eliminar esta aula? Los alumnos asignados se quedarán sin aula.")) {
+                    deleteClassroom.mutate();
+                  }
+                }}>
                 <Trash2 className="h-3.5 w-3.5" /> Eliminar
               </Button>
             </div>
@@ -357,7 +359,7 @@ function TabAlumnos({ students, qc, canModify }: { students: any[], qc: any, can
                 <Eye className="h-4 w-4" />
               </Link>
                 {canModify && (
-                  <button onClick={() => { if(confirm("¿Seguro que deseas retirar a este alumno del aula?")) removeStudent.mutate(s.id); }} className="p-2 hover:bg-muted rounded-full block text-destructive transition-colors">
+                  <button onClick={async () => { if (await confirm("¿Seguro que deseas retirar a este alumno del aula?")) removeStudent.mutate(s.id); }} className="p-2 hover:bg-muted rounded-full block text-destructive transition-colors">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}

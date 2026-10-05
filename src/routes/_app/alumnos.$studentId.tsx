@@ -1,3 +1,4 @@
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +16,7 @@ import {
 export const Route = createFileRoute("/_app/alumnos/$studentId")({ component: StudentDetailPage });
 
 function StudentDetailPage() {
+  const confirm = useConfirm();
   const { studentId } = Route.useParams();
   const { user, canModifyData, formatCurrency, mosqueId } = useAuth();
   const { t } = useI18n();
@@ -354,7 +356,7 @@ function StudentDetailPage() {
             {(notes ?? []).map(n => (
               <div key={n.id} className="p-3 bg-muted/30 rounded-xl flex justify-between">
                 <div><p className="text-sm">{n.content}</p><p className="text-[10px] text-muted-foreground mt-1">{n.note_date}</p></div>
-                {canModifyData() && <button onClick={() => deleteNote.mutate(n.id)} className="text-destructive/50 hover:text-destructive"><Trash2 className="h-3 w-3" /></button>}
+                {canModifyData() && <button onClick={async () => { if (await confirm("¿Seguro que deseas eliminar esta nota?")) deleteNote.mutate(n.id); }} className="text-destructive/50 hover:text-destructive"><Trash2 className="h-3 w-3" /></button>}
               </div>
             ))}
             {(notes ?? []).length === 0 && <p className="text-center py-4 text-muted-foreground text-sm">{t("nothing_yet") as string}</p>}

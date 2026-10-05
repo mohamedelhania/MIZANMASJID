@@ -1,3 +1,4 @@
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,6 +22,7 @@ const ROLES = [
 ];
 
 function UsuariosPage() {
+  const confirm = useConfirm();
   const { role, mosqueId, session } = useAuth();
   const { t } = useI18n();
   const qc = useQueryClient();
@@ -193,7 +195,7 @@ function UsuariosPage() {
 
                   return (
                     <Button size="sm" variant="ghost" className="text-destructive h-8 w-8 p-0"
-                      onClick={() => { if (confirm(t("confirm_delete") as string)) deleteRole.mutate(ur.id); }}>
+                      onClick={async () => { if (await confirm(t("confirm_delete") as string)) deleteRole.mutate(ur.id); }}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   );

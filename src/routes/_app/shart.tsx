@@ -1,3 +1,4 @@
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { HandCoins, Plus, Trash2, Loader2, ChevronLeft, ChevronRight } from "luc
 export const Route = createFileRoute("/_app/shart")({ component: ShartPage });
 
 function ShartPage() {
+  const confirm = useConfirm();
   const { mosqueId, canAccessFinance, canModifyData, formatCurrency } = useAuth();
   const { t } = useI18n();
   const qc = useQueryClient();
@@ -143,7 +145,7 @@ function ShartPage() {
                   })}
                   {!readOnly && (
                     <td className="py-1">
-                      <button onClick={() => { if (confirm(t("confirm_delete") as string)) deleteContributor.mutate(c.id); }}
+                      <button onClick={async () => { if (await confirm(t("confirm_delete") as string)) deleteContributor.mutate(c.id); }}
                         className="p-1 text-destructive/50 hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
                     </td>
                   )}
