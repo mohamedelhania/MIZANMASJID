@@ -70,36 +70,56 @@ function AlumnosIndexPage() {
   });
 
   const addStudent = useMutation({
-    mutationFn: async () => {
-      const { error, data: newStudent } = await supabase.from("students").insert({ 
-        first_name: firstName, 
-        last_name: lastName, 
+    mutationFn: async (vars: any) => {
+      console.log("Creando alumno...");
+      const { error, data: newStudent } = await supabase.from("students").insert({
+        first_name: vars.firstName, 
+        last_name: vars.lastName, 
         mosque_id: mosqueId!,
-        date_of_birth: birthDate || null,
-        tutor_name: tutorName || null,
-        contact_phone: contactPhone || null,
-        classroom_id: classroomId || null,
-        monthly_fee: Number(monthlyFee) || 0,
-        student_dni: studentDni || null,
-        tutor_dni: tutorDni || null
+        date_of_birth: vars.birthDate || null,
+        tutor_name: vars.tutorName || null,
+        contact_phone: vars.contactPhone || null,
+        classroom_id: vars.classroomId || null,
+        monthly_fee: Number(vars.monthlyFee) || 0,
+        student_dni: vars.studentDni || null,
+        tutor_dni: vars.tutorDni || null
       }).select().single();
-      if (error) throw error;
       
-      if (photoFile && newStudent) {
-        const ext = photoFile.name.split(".").pop();
+      if (error) {
+        console.error("Error insert:", error);
+        throw error;
+      }
+      
+      console.log("Alumno creado:", newStudent);
+
+      if (vars.photoFile && newStudent) {
+        console.log("Hay foto para subir:", vars.photoFile.name);
+        const ext = vars.photoFile.name.split(".").pop();
         const path = `${mosqueId}/${newStudent.id}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("student-photos").upload(path, photoFile, { upsert: true });
+        
+        console.log("Subiendo foto a:", path);
+        const { error: uploadError } = await supabase.storage.from("student-photos").upload(path, vars.photoFile, { upsert: true });
         
         if (!uploadError) {
+          console.log("Foto subida. Obteniendo URL...");
           const { data: { publicUrl } } = supabase.storage.from("student-photos").getPublicUrl(path);
-          await supabase.from("students").update({ photo_url: publicUrl }).eq("id", newStudent.id);
+          console.log("Public URL:", publicUrl);
+          
+          const { error: updateError } = await supabase.from("students").update({ photo_url: publicUrl }).eq("id", newStudent.id);
+          if (updateError) {
+            console.error("Error al actualizar la BD con la foto:", updateError);
+          } else {
+            console.log("BD actualizada con la foto!");
+          }
+        } else {
+          console.error("Error al subir la foto:", uploadError);
         }
       }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["students"] });
       setFirstName(""); setLastName(""); setBirthDate(""); setTutorName(""); setContactPhone(""); setClassroomId(""); setMonthlyFee("0"); setStudentDni(""); setTutorDni(""); setPhotoFile(null); setShowForm(false);
-      toast.success("✓");
+      toast.success("Hecho");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -109,7 +129,7 @@ function AlumnosIndexPage() {
       const { error } = await supabase.from("students").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["students"] }); toast.success("✓"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["students"] }); toast.success("Hecho"); },
   });
 
   const togglePayment = useMutation({
@@ -258,7 +278,7 @@ function AlumnosIndexPage() {
                 if (tutorDocType === "NIE" && !nieRegex.test(tutorDni.trim())) return toast.error("El NIE del tutor debe ser X/Y/Z + 7 números + letra.");
               }
 
-              addStudent.mutate();
+              addStudent.mutate({ firstName, lastName, birthDate, tutorName, contactPhone, classroomId, monthlyFee, studentDni, tutorDni, photoFile });
             }}>
               {addStudent.isPending && <Loader2 className="h-3 w-3 animate-spin" />} {t("save") as string}
             </Button>
