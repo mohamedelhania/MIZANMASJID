@@ -82,8 +82,19 @@ function AlumnosIndexPage() {
         monthly_fee: Number(monthlyFee) || 0,
         student_dni: studentDni || null,
         tutor_dni: tutorDni || null
-      });
+      }).select().single();
       if (error) throw error;
+      
+      if (photoFile && newStudent) {
+        const ext = photoFile.name.split(".").pop();
+        const path = `${mosqueId}/${newStudent.id}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("student-photos").upload(path, photoFile, { upsert: true });
+        
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage.from("student-photos").getPublicUrl(path);
+          await supabase.from("students").update({ photo_url: publicUrl }).eq("id", newStudent.id);
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["students"] });
