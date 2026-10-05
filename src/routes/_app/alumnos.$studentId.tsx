@@ -376,7 +376,7 @@ function StudentDetailPage() {
                 <button key={i} disabled={!canModifyData() || isInactive}
                   onClick={() => {
                     if (isInactive) return;
-                    togglePayment.mutate({ year: currentYear, month: monthNum, paid: !isPaid, amount: Number(pay?.amount ?? 0) });
+                    togglePayment.mutate({ year: currentYear, month: monthNum, paid: !isPaid, amount: Number(pay?.amount ?? student?.monthly_fee ?? 0) });
                   }}
                   className={`p-2 rounded-xl text-center transition-all ${
                     isInactive 

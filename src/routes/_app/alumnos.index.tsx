@@ -279,7 +279,30 @@ function AlumnosIndexPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex-1 overflow-x-auto mx-4 pb-2 sm:pb-0 hide-scrollbar">
+                  <div className="flex gap-1.5 min-w-max">
+                    {Array.from({ length: 12 }, (_, i) => {
+                      const monthNum = i + 1;
+                      const isPaid = isMonthPaid(s.id, monthNum);
+                      const isInactive = ((s as any).classrooms?.inactive_months || []).includes(monthNum);
+                      return (
+                        <button key={i} disabled={!canModifyData() || isInactive}
+                          onClick={() => togglePayment.mutate({ studentId: s.id, month: monthNum, current: isPaid, fee: Number(s.monthly_fee ?? 0) })}
+                          className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex flex-col items-center justify-center transition-all flex-shrink-0 ${
+                            isInactive 
+                              ? "bg-amber-100/50 text-amber-700/50 border border-amber-300/50 cursor-not-allowed"
+                              : isPaid 
+                                ? "bg-emerald-100 text-emerald-700 border border-emerald-300" 
+                                : "bg-red-50 text-red-400 border border-red-200 hover:bg-red-100"
+                          } ${!canModifyData() ? "cursor-default" : ""}`}>
+                          <span className="text-[9px] sm:text-[10px] font-medium leading-none mb-1">{months[i].substring(0, 3)}</span>
+                          <span className="text-[10px] sm:text-xs leading-none">{isInactive ? "—" : isPaid ? "✓" : "·"}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-1">
                   <Link to="/alumnos/$studentId" params={{ studentId: s.id }} className="h-8 w-8 p-0 inline-flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition-colors">
                     <Eye className="h-3.5 w-3.5" />
                   </Link>

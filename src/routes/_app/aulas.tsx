@@ -22,6 +22,8 @@ function AulasPage() {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [teacherId, setTeacherId] = useState<string>("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [selectedClassroom, setSelectedClassroom] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"alumnos" | "tareas" | "examenes" | "asistencia" | "analiticas">("alumnos");
   const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().slice(0, 10));
@@ -77,13 +79,15 @@ function AulasPage() {
       const { error } = await supabase.from("classrooms").insert({ 
         name, 
         mosque_id: mosqueId!,
-        teacher_id: teacherId || null 
+        teacher_id: teacherId || null,
+        start_date: startDate || null,
+        end_date: endDate || null
       });
       if (error) throw error;
     },
     onSuccess: () => { 
       qc.invalidateQueries({ queryKey: ["classrooms", mosqueId] }); 
-      setName(""); setTeacherId(""); setShowForm(false); toast.success("Aula creada"); 
+      setName(""); setTeacherId(""); setStartDate(""); setEndDate(""); setShowForm(false); toast.success("Aula creada"); 
     },
   });
 
@@ -146,7 +150,7 @@ function AulasPage() {
 
         {showForm && (
           <Card className="p-4 animate-scale-in">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <input placeholder={t("classroom_name") as string} value={name} onChange={e => setName(e.target.value)}
                 className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
               
@@ -157,6 +161,18 @@ function AulasPage() {
                   <option key={t.user_id} value={t.user_id}>{t.profiles?.full_name || t.user_id}</option>
                 ))}
               </select>
+
+              <div className="flex flex-col">
+                <label className="text-[10px] text-muted-foreground uppercase mb-1">Fecha Inicio (Ej. Sep 2026)</label>
+                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
+                  className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-[10px] text-muted-foreground uppercase mb-1">Fecha Fin (Ej. Jul 2027)</label>
+                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
+                  className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
 
               <div className="flex gap-2 items-center">
                 <Button size="sm" className="text-xs flex-1" disabled={!name || createClassroom.isPending} onClick={() => createClassroom.mutate()}>
@@ -180,6 +196,12 @@ function AulasPage() {
                   <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
                     <BookOpen className="h-4 w-4 text-primary" /> {c.name}
                   </h3>
+                  {(c.start_date || c.end_date) && (
+                    <p className="text-[10px] text-muted-foreground mb-2 flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {c.start_date ? new Date(c.start_date).toLocaleDateString() : '?'} - {c.end_date ? new Date(c.end_date).toLocaleDateString() : '?'}
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-1">
                     {teacherName ? (
                       <span className="badge-teacher inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px]">
@@ -213,9 +235,17 @@ function AulasPage() {
             <Button variant="outline" size="sm" onClick={() => setSelectedClassroom(null)} className="h-8 w-8 p-0">
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              {currentAula?.name}
-            </h2>
+            <div className="flex flex-col">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                {currentAula?.name}
+              </h2>
+              {(currentAula?.start_date || currentAula?.end_date) && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                  <Calendar className="h-3 w-3" />
+                  {currentAula?.start_date ? new Date(currentAula.start_date).toLocaleDateString() : '?'} - {currentAula?.end_date ? new Date(currentAula.end_date).toLocaleDateString() : '?'}
+                </p>
+              )}
+            </div>
           </div>
           
           {canModifyData() && (
