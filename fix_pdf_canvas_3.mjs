@@ -1,4 +1,6 @@
-import { jsPDF } from "jspdf";
+import fs from 'fs';
+
+let code = `import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { MosqueInfo } from "./auth";
 
@@ -36,7 +38,7 @@ export async function generateMonthlyReport(d: ReportData) {
   const fmt = (n: number) => {
     try {
       return new Intl.NumberFormat("es-ES", { style: "currency", currency: cur }).format(n);
-    } catch { return `${n.toFixed(2)} ${cur}`; }
+    } catch { return \`\${n.toFixed(2)} \${cur}\`; }
   };
 
   // Header with logo
@@ -55,13 +57,13 @@ export async function generateMonthlyReport(d: ReportData) {
   doc.setTextColor(100);
   if (d.mosque.address) doc.text(d.mosque.address, 14, headerY + 10);
   if (d.mosque.bank_account) {
-    doc.text(`Cuenta: ${d.mosque.bank_account}`, 14, headerY + 15);
+    doc.text(\`Cuenta: \${d.mosque.bank_account}\`, 14, headerY + 15);
   }
 
   // Report title
   doc.setFontSize(13);
   doc.setTextColor(60);
-  doc.text(`Informe ${d.monthLabel} ${d.year}`, 120, headerY + 4);
+  doc.text(\`Informe \${d.monthLabel} \${d.year}\`, 120, headerY + 4);
 
   // Draw quote using Canvas to perfectly render Arabic and Spanish
   const createQuoteImage = () => {
@@ -129,7 +131,11 @@ export async function generateMonthlyReport(d: ReportData) {
   // Footer
   doc.setFontSize(9);
   doc.setTextColor(150);
-  doc.text(`Generado el ${new Date().toLocaleString("es-ES")} - MizanMasjid`, 14, 285);
+  doc.text(\`Generado el \${new Date().toLocaleString("es-ES")} - MizanMasjid\`, 14, 285);
 
-  doc.save(`informe-${d.mosque.name.replace(/\s+/g, "_")}-${d.year}-${String(d.monthLabel).slice(0, 3)}.pdf`);
+  doc.save(\`informe-\${d.mosque.name.replace(/\\s+/g, "_")}-\${d.year}-\${String(d.monthLabel).slice(0, 3)}.pdf\`);
 }
+`;
+
+fs.writeFileSync('src/lib/pdf.ts', code);
+console.log('PDF replaced');
