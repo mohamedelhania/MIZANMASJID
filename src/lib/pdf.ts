@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 import type { MosqueInfo } from "./auth";
 
 // Logo will be embedded as base64 at build time
-import logoUrl from "@/assets/mizan_logo.jpg";
+import { MIZAN_LOGO_BASE64 } from "@/lib/logoBase64";
 
 export interface ReportData {
   mosque: MosqueInfo;
@@ -19,15 +19,7 @@ export interface ReportData {
 }
 
 async function getLogoBase64(): Promise<string | null> {
-  try {
-    const response = await fetch(logoUrl);
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.readAsDataURL(blob);
-    });
-  } catch { return null; }
+  return MIZAN_LOGO_BASE64;
 }
 
 export async function generateMonthlyReport(d: ReportData) {

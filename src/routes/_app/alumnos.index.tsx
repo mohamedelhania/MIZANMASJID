@@ -43,18 +43,7 @@ function AlumnosIndexPage() {
     let headerY = 20;
 
     // Add Logo
-    try {
-      const response = await fetch(logoUrl);
-      const blob = await response.blob();
-      const base64 = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
-      if (base64) {
-        doc.addImage(base64 as string, "JPEG", 14, 10, 50, 18);
-      }
-    } catch (e) { console.error(e); }
+    doc.addImage(MIZAN_LOGO_BASE64, "JPEG", 14, 10, 50, 18);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
