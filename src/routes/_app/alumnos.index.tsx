@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Search, Plus, Eye, Trash2, Loader2, ChevronLeft, ChevronRight   Download,
+import { GraduationCap, Search, Plus, Eye, Trash2, Loader2, ChevronLeft, ChevronRight, Download,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/alumnos/")({ component: AlumnosIndexPage });
