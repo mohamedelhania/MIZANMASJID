@@ -55,7 +55,11 @@ export async function generateMonthlyReport(d: ReportData) {
   doc.setTextColor(100);
   if (d.mosque.address) doc.text(d.mosque.address, 14, headerY + 10);
   if (d.mosque.bank_account) {
-    doc.text(`Cuenta: ${d.mosque.bank_account}`, 14, headerY + 15);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Cuenta: ${d.mosque.bank_account}`, 14, headerY + 16);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
   }
 
   // Report title

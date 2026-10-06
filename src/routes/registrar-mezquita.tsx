@@ -164,7 +164,7 @@ function RegisterMosquePage() {
                 <input type="radio" name="classes_paid" checked={!form.classes_paid} onChange={() => up("classes_paid", false)}
                   className="mt-1 w-4 h-4 text-primary" />
                 <div>
-                  <p className="text-sm font-medium">Clases gratuitas (Maktab)</p>
+                  <p className="text-sm font-medium">Clases gratuitas</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">La enseñanza es impartida sin coste para los alumnos, asumiendo la mezquita los gastos.</p>
                 </div>
               </label>

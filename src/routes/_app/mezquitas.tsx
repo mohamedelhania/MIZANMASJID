@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Search, CheckCircle2, XCircle, Clock, Phone, Mail,
-  ChevronRight, Building2, MapPin, Eye, Users as UsersIcon, Map as MapIcon, List, Trash2
+  ChevronRight, Building2, MapPin, Eye, Users as UsersIcon, Map as MapIcon, List, Plus, Trash2
 } from "lucide-react";
 import { MosqueIcon } from "@/components/ui/mosque-icon";
 import { useState, lazy, Suspense } from "react";
@@ -93,7 +93,12 @@ const deleteMosque = useMutation({
           <MosqueIcon className="h-7 w-7 text-primary" />
           {t("mosques") as string}
         </h1>
-        <div className="flex bg-muted/50 p-1 rounded-xl">
+        {role === 'super_admin' && (
+            <Link to="/registrar-mezquita" className="mr-3 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm hover:shadow-md transition-all">
+              <Plus className="h-4 w-4" /> Añadir Mezquita
+            </Link>
+          )}
+          <div className="flex bg-muted/50 p-1 rounded-xl">
           <button onClick={() => setView("list")} className={`p-2 rounded-lg transition-all ${view === "list" ? "bg-background shadow-sm" : "text-muted-foreground hover:bg-background/50"}`}>
             <List className="h-4 w-4" />
           </button>

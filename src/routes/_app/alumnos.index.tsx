@@ -1,4 +1,6 @@
-import { useConfirm } from "@/providers/ConfirmDialogProvider";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { Download,  useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, useNavigate, Navigate, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -19,6 +21,61 @@ function AlumnosIndexPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [showPdfDialog, setShowPdfDialog] = useState(false);
+  const [pdfFields, setPdfFields] = useState({
+    number: true,
+    name: true,
+    lastname: true,
+    dni: true,
+    classroom: true,
+    fee: true,
+    payments: false
+  });
+
+  const generatePdf = () => {
+    const doc = new jsPDF();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("Listado de Alumnos", 14, 20);
+
+    const head = [];
+    if (pdfFields.number) head.push("Nº");
+    if (pdfFields.name) head.push("Nombre");
+    if (pdfFields.lastname) head.push("Apellidos");
+    if (pdfFields.dni) head.push("DNI");
+    if (pdfFields.classroom) head.push("Aula");
+    if (pdfFields.fee) head.push("Cuota");
+    if (pdfFields.payments) head.push("Pagos (Este año)");
+
+    const body = filtered.map(s => {
+      const row = [];
+      if (pdfFields.number) row.push(s.enrollment_number || "-");
+      if (pdfFields.name) row.push(s.first_name);
+      if (pdfFields.lastname) row.push(s.last_name);
+      if (pdfFields.dni) row.push(s.student_dni || "-");
+      if (pdfFields.classroom) row.push(s.classrooms?.name || "-");
+      if (pdfFields.fee) row.push(s.monthly_fee ? `${s.monthly_fee}€` : "0€");
+      if (pdfFields.payments) {
+        const currentYear = new Date().getFullYear();
+        const paidThisYear = (payments || []).filter(p => p.student_id === s.id && p.year === currentYear && p.paid);
+        row.push(paidThisYear.map(p => p.month).sort((a,b)=>a-b).join(", ") || "Ninguno");
+      }
+      return row;
+    });
+
+    autoTable(doc, {
+      startY: 25,
+      head: [head],
+      body: body,
+      theme: 'grid',
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [20, 163, 119] }
+    });
+
+    doc.save("alumnos.pdf");
+    setShowPdfDialog(false);
+  };
+
   const [showForm, setShowForm] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("");
@@ -75,7 +132,8 @@ function AlumnosIndexPage() {
     mutationFn: async (vars: any) => {
       console.log("Creando alumno...");
       const { error, data: newStudent } = await supabase.from("students").insert({
-        first_name: vars.firstName, 
+        enrollment_number: vars.nextNumber,
+          first_name: vars.firstName, 
         last_name: vars.lastName, 
         mosque_id: mosqueId!,
         date_of_birth: vars.birthDate || null,
@@ -126,6 +184,21 @@ function AlumnosIndexPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  
+  const resetNumbers = useMutation({
+    mutationFn: async () => {
+      if (!students) return;
+      const sortedStudents = [...students].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      for (let i = 0; i < sortedStudents.length; i++) {
+        await supabase.from("students").update({ enrollment_number: i + 1 }).eq("id", sortedStudents[i].id);
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["students"] });
+      toast.success("Numeración reiniciada correctamente");
+    }
+  });
+
   const deleteStudent = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("students").delete().eq("id", id);
@@ -147,7 +220,8 @@ function AlumnosIndexPage() {
   });
 
   const filtered = (students ?? []).filter(s =>
-    `${s.first_name} ${s.last_name}`.toLowerCase().includes(search.toLowerCase())
+    `${s.first_name} ${s.last_name}`.toLowerCase().includes(search.toLowerCase()) ||
+    (s.enrollment_number && s.enrollment_number.toString() === search)
   );
 
   const getInitials = (f: string, l: string) => `${f[0] || ""}${l[0] || ""}`.toUpperCase();
@@ -280,7 +354,9 @@ function AlumnosIndexPage() {
                 if (tutorDocType === "NIE" && !nieRegex.test(tutorDni.trim())) return toast.error("El NIE del tutor debe ser X/Y/Z + 7 números + letra.");
               }
 
-              addStudent.mutate({ firstName, lastName, birthDate, tutorName, contactPhone, classroomId, monthlyFee, studentDni, tutorDni, photoFile });
+              const currentStudents = qc.getQueryData(["students", mosqueId]);
+                const nextNumber = Math.max(0, ...(currentStudents||[]).map(s => s.enrollment_number || 0)) + 1;
+                addStudent.mutate({ nextNumber, firstName, lastName, birthDate, tutorName, contactPhone, classroomId, monthlyFee, studentDni, tutorDni, photoFile });
             }}>
               {addStudent.isPending && <Loader2 className="h-3 w-3 animate-spin" />} {t("save") as string}
             </Button>
@@ -306,7 +382,7 @@ function AlumnosIndexPage() {
                     {s.photo_url ? <img src={s.photo_url} alt="" className="h-full w-full rounded-full object-cover absolute inset-0 cursor-pointer" onClick={() => setSelectedPhoto(s.photo_url || null)} /> : getInitials(s.first_name, s.last_name)}
                   </div>
                   <div>
-                    <p className="text-sm font-medium">{s.first_name} {s.last_name}</p>
+                    <p className="text-sm font-medium"><span className="text-muted-foreground mr-1 font-mono text-xs">#{s.enrollment_number || "-"}</span> {s.first_name} {s.last_name}</p>
                     <p className="text-[11px] text-muted-foreground">
                       {(s as any).classrooms?.name || t("no_classrooms") as string}
                     </p>
@@ -373,6 +449,28 @@ function AlumnosIndexPage() {
               onClick={e => e.stopPropagation()} 
             />
           </div>
+        </div>
+      )}
+
+      {/* PDF Export Dialog */}
+      {showPdfDialog && (
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4">
+          <Card className="w-full max-w-sm p-5 animate-scale-in relative">
+            <h3 className="text-lg font-bold mb-4">Opciones de Exportación</h3>
+            <div className="space-y-3 mb-6">
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.number} onChange={e => setPdfFields(f => ({...f, number: e.target.checked}))} /> Número de Alumno</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.name} onChange={e => setPdfFields(f => ({...f, name: e.target.checked}))} /> Nombre</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.lastname} onChange={e => setPdfFields(f => ({...f, lastname: e.target.checked}))} /> Apellidos</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.dni} onChange={e => setPdfFields(f => ({...f, dni: e.target.checked}))} /> DNI</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.classroom} onChange={e => setPdfFields(f => ({...f, classroom: e.target.checked}))} /> Aula</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.fee} onChange={e => setPdfFields(f => ({...f, fee: e.target.checked}))} /> Cuota Mensual</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.payments} onChange={e => setPdfFields(f => ({...f, payments: e.target.checked}))} /> Pagos (Este Año)</label>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setShowPdfDialog(false)}>Cancelar</Button>
+              <Button className="flex-1" onClick={generatePdf}>Descargar PDF</Button>
+            </div>
+          </Card>
         </div>
       )}
     </div>
