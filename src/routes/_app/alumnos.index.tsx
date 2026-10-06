@@ -30,15 +30,46 @@ function AlumnosIndexPage() {
     dni: true,
     classroom: true,
     fee: true,
-    payments: false
+    payments: false,
+    onlyDebtors: false
   });
 
-  const generatePdf = () => {
-    const doc = new jsPDF();
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("Listado de Alumnos", 14, 20);
+  const generatePdf = async () => {
+    const isLandscape = pdfFields.payments;
+    const doc = new jsPDF(isLandscape ? "landscape" : "portrait");
+    
+    // Fetch Mosque info
+    const { data: mosque } = await supabase.from("mosques").select("*").eq("id", mosqueId).single();
+    
+    let headerY = 20;
 
+    // Add Logo
+    try {
+      const response = await fetch(logoUrl);
+      const blob = await response.blob();
+      const base64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+      if (base64) {
+        doc.addImage(base64 as string, "PNG", 14, 10, 25, 25);
+      }
+    } catch (e) { console.error(e); }
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(20, 163, 119); // MizanMasjid green
+    doc.text(mosque?.name || "MizanMasjid", 45, 22);
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100);
+    doc.text("Listado de Alumnos", 45, 30);
+
+    headerY = 45;
+
+    // Build headers
     const head = [];
     if (pdfFields.number) head.push("Nº");
     if (pdfFields.name) head.push("Nombre");
@@ -46,9 +77,25 @@ function AlumnosIndexPage() {
     if (pdfFields.dni) head.push("DNI");
     if (pdfFields.classroom) head.push("Aula");
     if (pdfFields.fee) head.push("Cuota");
-    if (pdfFields.payments) head.push("Pagos (Este año)");
+    
+    const monthNames = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+    if (pdfFields.payments) {
+      head.push(...monthNames);
+    }
 
-    const body = filtered.map(s => {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+
+    let studentsToExport = filtered;
+    
+    if (pdfFields.onlyDebtors) {
+      studentsToExport = filtered.filter(s => {
+        const paidThisYear = (payments || []).filter(p => p.student_id === s.id && p.year === currentYear && p.paid);
+        return paidThisYear.length < currentMonth; // Simple debtor logic
+      });
+    }
+
+    const body = studentsToExport.map(s => {
       const row = [];
       if (pdfFields.number) row.push(s.enrollment_number || "-");
       if (pdfFields.name) row.push(s.first_name);
@@ -56,22 +103,58 @@ function AlumnosIndexPage() {
       if (pdfFields.dni) row.push(s.student_dni || "-");
       if (pdfFields.classroom) row.push(s.classrooms?.name || "-");
       if (pdfFields.fee) row.push(s.monthly_fee ? `${s.monthly_fee}€` : "0€");
+      
       if (pdfFields.payments) {
-        const currentYear = new Date().getFullYear();
-        const paidThisYear = (payments || []).filter(p => p.student_id === s.id && p.year === currentYear && p.paid);
-        row.push(paidThisYear.map(p => p.month).sort((a,b)=>a-b).join(", ") || "Ninguno");
+        const paidThisYear = (payments || []).filter(p => p.student_id === s.id && p.year === currentYear && p.paid).map(p => p.month);
+        for (let i = 1; i <= 12; i++) {
+          row.push(paidThisYear.includes(i) ? "Pagado" : "No");
+        }
       }
       return row;
     });
 
     autoTable(doc, {
-      startY: 25,
+      startY: headerY,
       head: [head],
       body: body,
       theme: 'grid',
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [20, 163, 119] }
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [20, 163, 119], halign: 'center' },
+      didParseCell: (data) => {
+        if (pdfFields.payments && data.section === 'body') {
+          const colIndex = data.column.index;
+          const monthsStartIndex = head.length - 12;
+          if (colIndex >= monthsStartIndex) {
+            data.cell.styles.halign = 'center';
+            if (data.cell.raw === 'Pagado') {
+              data.cell.text = [''];
+              data.cell.styles.fillColor = [187, 247, 208];
+            } else if (data.cell.raw === 'No') {
+              data.cell.text = [''];
+              data.cell.styles.fillColor = [254, 202, 202];
+            }
+          }
+        }
+      }
     });
+
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      if (mosque?.bank_account) {
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(50);
+        const bankText = `Cuenta de la Mezquita: ${mosque.bank_account}`;
+        const textWidth = doc.getStringUnitWidth(bankText) * 11 / doc.internal.scaleFactor;
+        const pageWidth = doc.internal.pageSize.width;
+        doc.text(bankText, (pageWidth - textWidth) / 2, doc.internal.pageSize.height - 15);
+      }
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(`Generado el ${new Date().toLocaleString("es-ES")} - MizanMasjid`, 14, doc.internal.pageSize.height - 5);
+    }
 
     doc.save("alumnos.pdf");
     setShowPdfDialog(false);
@@ -460,7 +543,11 @@ const getInitials = (f: string, l: string) => `${f[0] || ""}${l[0] || ""}`.toUpp
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.dni} onChange={e => setPdfFields(f => ({...f, dni: e.target.checked}))} /> DNI</label>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.classroom} onChange={e => setPdfFields(f => ({...f, classroom: e.target.checked}))} /> Aula</label>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.fee} onChange={e => setPdfFields(f => ({...f, fee: e.target.checked}))} /> Cuota Mensual</label>
-              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.payments} onChange={e => setPdfFields(f => ({...f, payments: e.target.checked}))} /> Pagos (Este Año)</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pdfFields.payments} onChange={e => setPdfFields(f => ({...f, payments: e.target.checked}))} /> Meses Pagados (Tabla de Colores)</label>
+              
+              <div className="h-px bg-border my-2"></div>
+              
+              <label className="flex items-center gap-2 text-sm font-semibold text-destructive"><input type="checkbox" checked={pdfFields.onlyDebtors} onChange={e => setPdfFields(f => ({...f, onlyDebtors: e.target.checked}))} /> Filtrar solo deudores (morosos)</label>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setShowPdfDialog(false)}>Cancelar</Button>
