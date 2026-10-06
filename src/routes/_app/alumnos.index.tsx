@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useConfirm } from "@/providers/ConfirmDialogProvider";
-import { useState } from "react";
+import React, { useState } from "react";
 import { createFileRoute, useNavigate, Navigate, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -133,8 +133,7 @@ function AlumnosIndexPage() {
     mutationFn: async (vars: any) => {
       console.log("Creando alumno...");
       const { error, data: newStudent } = await supabase.from("students").insert({
-        enrollment_number: vars.nextNumber,
-          first_name: vars.firstName, 
+        first_name: vars.firstName, 
         last_name: vars.lastName, 
         mosque_id: mosqueId!,
         date_of_birth: vars.birthDate || null,
@@ -186,20 +185,6 @@ function AlumnosIndexPage() {
   });
 
   
-  const resetNumbers = useMutation({
-    mutationFn: async () => {
-      if (!students) return;
-      const sortedStudents = [...students].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-      for (let i = 0; i < sortedStudents.length; i++) {
-        await supabase.from("students").update({ enrollment_number: i + 1 }).eq("id", sortedStudents[i].id);
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["students"] });
-      toast.success("Numeración reiniciada correctamente");
-    }
-  });
-
   const deleteStudent = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("students").delete().eq("id", id);
@@ -220,12 +205,17 @@ function AlumnosIndexPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["student-payments-all"] }),
   });
 
-  const filtered = (students ?? []).filter(s =>
+  
+  const studentsWithNumber = React.useMemo(() => {
+    if (!students) return [];
+    return [...students].sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()).map((s, idx) => ({ ...s, enrollment_number: idx + 1 }));
+  }, [students]);
+
+  const filtered = studentsWithNumber.filter(s =>
     `${s.first_name} ${s.last_name}`.toLowerCase().includes(search.toLowerCase()) ||
     (s.enrollment_number && s.enrollment_number.toString() === search)
   );
-
-  const getInitials = (f: string, l: string) => `${f[0] || ""}${l[0] || ""}`.toUpperCase();
+const getInitials = (f: string, l: string) => `${f[0] || ""}${l[0] || ""}`.toUpperCase();
 
   const isMonthPaid = (studentId: string, m: number) => {
     const p = (payments ?? []).find(p => p.student_id === studentId && p.month === m);
@@ -245,15 +235,7 @@ function AlumnosIndexPage() {
           <p className="text-sm text-muted-foreground">{(students ?? []).length} {t("students") as string}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 justify-end w-full md:w-auto mt-3 md:mt-0">
-          {role === 'super_admin' && (
-            <Button variant="outline" className="text-xs text-amber-600 border-amber-200 hover:bg-amber-50" onClick={async () => {
-              if (await confirm("¿Seguro que deseas reiniciar la numeración de todos los alumnos?")) {
-                resetNumbers.mutate();
-              }
-            }}>
-              Reiniciar Numeración
-            </Button>
-          )}
+          
           <Button variant="outline" className="text-xs" onClick={() => setShowPdfDialog(true)}>
             <Download className="h-4 w-4 mr-2" /> Exportar PDF
           </Button>
@@ -370,8 +352,7 @@ function AlumnosIndexPage() {
               }
 
               const currentStudents = qc.getQueryData(["students", mosqueId]);
-                const nextNumber = Math.max(0, ...(currentStudents||[]).map(s => s.enrollment_number || 0)) + 1;
-                addStudent.mutate({ nextNumber, firstName, lastName, birthDate, tutorName, contactPhone, classroomId, monthlyFee, studentDni, tutorDni, photoFile });
+                addStudent.mutate({ firstName, lastName, birthDate, tutorName, contactPhone, classroomId, monthlyFee, studentDni, tutorDni, photoFile });
             }}>
               {addStudent.isPending && <Loader2 className="h-3 w-3 animate-spin" />} {t("save") as string}
             </Button>
