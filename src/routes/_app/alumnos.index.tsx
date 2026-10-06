@@ -52,7 +52,7 @@ function AlumnosIndexPage() {
         reader.readAsDataURL(blob);
       });
       if (base64) {
-        doc.addImage(base64 as string, "PNG", 14, 10, 50, 18);
+        doc.addImage(base64 as string, "JPEG", 14, 10, 50, 18);
       }
     } catch (e) { console.error(e); }
 

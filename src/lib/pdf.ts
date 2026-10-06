@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 import type { MosqueInfo } from "./auth";
 
 // Logo will be embedded as base64 at build time
-import logoUrl from "@/assets/logo.png";
+import logoUrl from "@/assets/mizan_logo.jpg";
 
 export interface ReportData {
   mosque: MosqueInfo;
