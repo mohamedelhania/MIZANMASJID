@@ -35,8 +35,7 @@ function AlumnosIndexPage() {
   });
 
   const generatePdf = async () => {
-    const isLandscape = pdfFields.payments;
-    const doc = new jsPDF(isLandscape ? "landscape" : "portrait");
+    const doc = new jsPDF("portrait");
     
     // Fetch Mosque info
     const { data: mosque } = await supabase.from("mosques").select("*").eq("id", mosqueId).single();
@@ -53,19 +52,19 @@ function AlumnosIndexPage() {
         reader.readAsDataURL(blob);
       });
       if (base64) {
-        doc.addImage(base64 as string, "PNG", 14, 10, 25, 25);
+        doc.addImage(base64 as string, "PNG", 14, 10, 50, 18);
       }
     } catch (e) { console.error(e); }
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
     doc.setTextColor(20, 163, 119); // MizanMasjid green
-    doc.text(mosque?.name || "MizanMasjid", 45, 22);
+    doc.text(mosque?.name || "MizanMasjid", 70, 18);
     
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100);
-    doc.text("Listado de Alumnos", 45, 30);
+    doc.text("Listado de Alumnos", 70, 25);
 
     headerY = 45;
 
@@ -118,7 +117,7 @@ function AlumnosIndexPage() {
       head: [head],
       body: body,
       theme: 'grid',
-      styles: { fontSize: 8, cellPadding: 2 },
+      styles: { fontSize: pdfFields.payments ? 6 : 8, cellPadding: pdfFields.payments ? 0.8 : 2 },
       headStyles: { fillColor: [20, 163, 119], halign: 'center' },
       didParseCell: (data) => {
         if (pdfFields.payments && data.section === 'body') {
