@@ -35,10 +35,16 @@ function AlumnosIndexPage() {
   });
 
   const generatePdf = async () => {
+    try {
+
     const doc = new jsPDF("portrait");
     
     // Fetch Mosque info
-    const { data: mosque } = await supabase.from("mosques").select("*").eq("id", mosqueId).single();
+    let mosque = null;
+      if (mosqueId) {
+        const res = await supabase.from("mosques").select("*").eq("id", mosqueId).single();
+        mosque = res.data;
+      }
     
     let headerY = 20;
 
@@ -145,7 +151,12 @@ function AlumnosIndexPage() {
     }
 
     doc.save("alumnos.pdf");
-    setShowPdfDialog(false);
+    
+      setShowPdfDialog(false);
+    } catch (e) {
+      console.error(e);
+      alert('Error: ' + e.message + '\n' + e.stack);
+    }
   };
 
   const [showForm, setShowForm] = useState(false);
