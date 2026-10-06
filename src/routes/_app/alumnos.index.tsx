@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Download,  useConfirm } from "@/providers/ConfirmDialogProvider";
+import { useConfirm } from "@/providers/ConfirmDialogProvider";
 import { useState } from "react";
 import { createFileRoute, useNavigate, Navigate, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +10,8 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Search, Plus, Eye, Trash2, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { GraduationCap, Search, Plus, Eye, Trash2, Loader2, ChevronLeft, ChevronRight   Download,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_app/alumnos/")({ component: AlumnosIndexPage });
 
