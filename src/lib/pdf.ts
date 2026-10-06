@@ -54,13 +54,7 @@ export async function generateMonthlyReport(d: ReportData) {
   doc.setFontSize(9);
   doc.setTextColor(100);
   if (d.mosque.address) doc.text(d.mosque.address, 14, headerY + 10);
-  if (d.mosque.bank_account) {
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Cuenta: ${d.mosque.bank_account}`, 14, headerY + 16);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-  }
+  
 
   // Report title
   doc.setFontSize(13);
@@ -131,6 +125,18 @@ export async function generateMonthlyReport(d: ReportData) {
   });
 
   // Footer
+  if (d.mosque.bank_account) {
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(50);
+    // Centered at bottom
+    const bankText = `Cuenta de la Mezquita: ${d.mosque.bank_account}`;
+    const textWidth = doc.getStringUnitWidth(bankText) * 12 / doc.internal.scaleFactor;
+    const pageWidth = doc.internal.pageSize.width;
+    doc.text(bankText, (pageWidth - textWidth) / 2, 275);
+  }
+
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(150);
   doc.text(`Generado el ${new Date().toLocaleString("es-ES")} - MizanMasjid`, 14, 285);

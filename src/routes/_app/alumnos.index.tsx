@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_app/alumnos/")({ component: AlumnosIndex
 
 function AlumnosIndexPage() {
   const confirm = useConfirm();
-  const { mosqueId, canAccessStudents, canModifyData } = useAuth();
+  const { mosqueId, canAccessStudents, canModifyData, role } = useAuth();
   const { t } = useI18n();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -243,11 +243,25 @@ function AlumnosIndexPage() {
           </h1>
           <p className="text-sm text-muted-foreground">{(students ?? []).length} {t("students") as string}</p>
         </div>
-        {canModifyData() && (
-          <Button size="sm" className="gap-1 text-xs" onClick={() => setShowForm(true)}>
-            <Plus className="h-3.5 w-3.5" /> {t("enroll_student") as string}
+        <div className="flex flex-wrap items-center gap-2 justify-end w-full md:w-auto mt-3 md:mt-0">
+          {role === 'super_admin' && (
+            <Button variant="outline" className="text-xs text-amber-600 border-amber-200 hover:bg-amber-50" onClick={async () => {
+              if (await confirm("¿Seguro que deseas reiniciar la numeración de todos los alumnos?")) {
+                resetNumbers.mutate();
+              }
+            }}>
+              Reiniciar Numeración
+            </Button>
+          )}
+          <Button variant="outline" className="text-xs" onClick={() => setShowPdfDialog(true)}>
+            <Download className="h-4 w-4 mr-2" /> Exportar PDF
           </Button>
-        )}
+          {canModifyData() && (
+            <Button size="sm" className="gap-1 text-xs" onClick={() => setShowForm(true)}>
+              <Plus className="h-3.5 w-3.5" /> {t("enroll_student") as string}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 animate-slide-up">
